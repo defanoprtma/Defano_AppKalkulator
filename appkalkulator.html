@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kalkulator Android</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .calculator-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #121212;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Status Bar Android */
+        .status-bar {
+            background-color: #000;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Display */
+        .display {
+            padding: 30px 20px 20px;
+            text-align: right;
+            background-color: #121212;
+            border-bottom: 1px solid #333;
+        }
+        
+        .calculation {
+            font-size: 18px;
+            color: #888;
+            min-height: 24px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            margin-bottom: 10px;
+        }
+        
+        .result {
+            font-size: 48px;
+            font-weight: 300;
+            min-height: 60px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background-color: #121212;
+            border-bottom: 1px solid #333;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background-color: transparent;
+            color: #888;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #4CAF50;
+            border-bottom: 2px solid #4CAF50;
+            font-weight: 600;
+        }
+        
+        /* Panel Kalkulator */
+        .calculator-panel {
+            display: block;
+        }
+        
+        .calculator-panel.hidden {
+            display: none;
+        }
+        
+        /* Tombol Kalkulator */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background-color: #333;
+        }
+        
+        .buttons-scientific {
+            grid-template-columns: repeat(5, 1fr);
+        }
+        
+        button {
+            border: none;
+            padding: 20px 10px;
+            font-size: 20px;
+            background-color: #222;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:active {
+            background-color: #333;
+        }
+        
+        .operator {
+            background-color: #2a2a2a;
+            color: #4CAF50;
+        }
+        
+        .equals {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .function {
+            background-color: #1a1a1a;
+            color: #FF9800;
+        }
+        
+        .zero {
+            grid-column: span 2;
+        }
+        
+        /* Footer Android */
+        .android-footer {
+            height: 5px;
+            background-color: #4CAF50;
+        }
+        
+        /* History Panel */
+        .history-panel {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .history-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #4CAF50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .history-calculation {
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .history-result {
+            color: #fff;
+            font-size: 18px;
+            text-align: right;
+        }
+        
+        .clear-history {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .empty-history {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 20px 0;
+        }
+        
+        /* Responsif untuk perangkat kecil */
+        @media (max-width: 400px) {
+            .result {
+                font-size: 36px;
+            }
+            
+            button {
+                padding: 18px 5px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <!-- Status Bar Android -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span id="time">9:41</span>
+            </div>
+            <div class="status-right">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi" style="margin-left: 5px;"></i>
+                <i class="fas fa-battery-full" style="margin-left: 5px;"></i>
+            </div>
+        </div>
+        
+        <!-- Display -->
+        <div class="display">
+            <div class="calculation" id="calculation"></div>
+            <div class="result" id="result">0</div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" id="basic-tab">DASAR</button>
+            <button class="tab" id="scientific-tab">ILMIAH</button>
+            <button class="tab" id="history-tab">RIWAYAT</button>
+        </div>
+        
+        <!-- Basic Calculator Panel -->
+        <div class="calculator-panel" id="basic-panel">
+            <div class="buttons">
+                <button class="function" data-action="clear">C</button>
+                <button class="function" data-action="backspace"><i class="fas fa-backspace"></i></button>
+                <button class="function" data-action="percentage">%</button>
+                <button class="operator" data-action="divide">÷</button>
+                
+                <button data-number="7">7</button>
+                <button data-number="8">8</button>
+                <button data-number="9">9</button>
+                <button class="operator" data-action="multiply">×</button>
+                
+                <button data-number="4">4</button>
+                <button data-number="5">5</button>
+                <button data-number="6">6</button>
+                <button class="operator" data-action="subtract">−</button>
+                
+                <button data-number="1">1</button>
+                <button data-number="2">2</button>
+                <button data-number="3">3</button>
+                <button class="operator" data-action="add">+</button>
+                
+                <button class="zero" data-number="0">0</button>
+                <button data-action="decimal">.</button>
+                <button class="equals" data-action="equals">=</button>
+            </div>
+        </div>
+        
+        <!-- Scientific Calculator Panel -->
+        <div class="calculator-panel hidden" id="scientific-panel">
+            <div class="buttons buttons-scientific">
+                <button class="function" data-action="clear">C</button>
+                <button class="function" data-action="backspace"><i class="fas fa-backspace"></i></button>
+                <button class="function" data-action="percentage">%</button>
+                <button class="operator" data-action="divide">÷</button>
+                <button class="function" data-action="square">x²</button>
+                
+                <button class="function" data-action="sin">sin</button>
+                <button data-number="7">7</button>
+                <button data-number="8">8</button>
+                <button data-number="9">9</button>
+                <button class="operator" data-action="multiply">×</button>
+                
+                <button class="function" data-action="cos">cos</button>
+                <button data-number="4">4</button>
+                <button data-number="5">5</button>
+                <button data-number="6">6</button>
+                <button class="operator" data-action="subtract">−</button>
+                
+                <button class="function" data-action="tan">tan</button>
+                <button data-number="1">1</button>
+                <button data-number="2">2</button>
+                <button data-number="3">3</button>
+                <button class="operator" data-action="add">+</button>
+                
+                <button class="function" data-action="pi">π</button>
+                <button class="zero" data-number="0">0</button>
+                <button data-action="decimal">.</button>
+                <button class="equals" data-action="equals">=</button>
+                <button class="function" data-action="sqrt">√</button>
+            </div>
+        </div>
+        
+        <!-- History Panel -->
+        <div class="calculator-panel hidden" id="history-panel">
+            <div class="history-panel">
+                <div class="history-title">
+                    <span>Riwayat Perhitungan</span>
+                    <button class="clear-history" id="clear-history">Hapus Riwayat</button>
+                </div>
+                <div id="history-list">
+                    <!-- Riwayat akan dimasukkan di sini -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Android -->
+        <div class="android-footer"></div>
+    </div>
+
+    <script>
+        // Elemen DOM
+        const resultElement = document.getElementById('result');
+        const calculationElement = document.getElementById('calculation');
+        const basicTab = document.getElementById('basic-tab');
+        const scientificTab = document.getElementById('scientific-tab');
+        const historyTab = document.getElementById('history-tab');
+        const basicPanel = document.getElementById('basic-panel');
+        const scientificPanel = document.getElementById('scientific-panel');
+        const historyPanel = document.getElementById('history-panel');
+        const historyList = document.getElementById('history-list');
+        const clearHistoryBtn = document.getElementById('clear-history');
+        
+        // Variabel kalkulator
+        let currentOperand = '0';
+        let previousOperand = '';
+        let operation = null;
+        let calculationHistory = [];
+        
+        // Inisialisasi
+        function init() {
+            updateDisplay();
+            setupEventListeners();
+            updateTime();
+            loadHistory();
+            
+            // Update waktu setiap menit
+            setInterval(updateTime, 60000);
+        }
+        
+        // Update waktu pada status bar
+        function updateTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            
+            // Format waktu menjadi 2 digit
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            
+            document.getElementById('time').textContent = `${hours}:${minutes}`;
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Tombol tab
+            basicTab.addEventListener('click', () => switchPanel('basic'));
+            scientificTab.addEventListener('click', () => switchPanel('scientific'));
+            historyTab.addEventListener('click', () => switchPanel('history'));
+            
+            // Tombol angka dan operasi
+            document.querySelectorAll('button[data-number]').forEach(button => {
+                button.addEventListener('click', () => appendNumber(button.getAttribute('data-number')));
+            });
+            
+            document.querySelectorAll('button[data-action]').forEach(button => {
+                button.addEventListener('click', () => handleAction(button.getAttribute('data-action')));
+            });
+            
+            // Tombol hapus riwayat
+            clearHistoryBtn.addEventListener('click', clearHistory);
+            
+            // Keyboard support
+            document.addEventListener('keydown', handleKeyboardInput);
+        }
+        
+        // Switch antara panel kalkulator
+        function switchPanel(panelName) {
+            // Reset tab aktif
+            basicTab.classList.remove('active');
+            scientificTab.classList.remove('active');
+            historyTab.classList.remove('active');
+            
+            // Sembunyikan semua panel
+            basicPanel.classList.add('hidden');
+            scientificPanel.classList.add('hidden');
+            historyPanel.classList.add('hidden');
+            
+            // Tampilkan panel yang dipilih
+            if (panelName === 'basic') {
+                basicTab.classList.add('active');
+                basicPanel.classList.remove('hidden');
+            } else if (panelName === 'scientific') {
+                scientificTab.classList.add('active');
+                scientificPanel.classList.remove('hidden');
+            } else if (panelName === 'history') {
+                historyTab.classList.add('active');
+                historyPanel.classList.remove('hidden');
+                updateHistoryDisplay();
+            }
+        }
+        
+        // Tambah angka
+        function appendNumber(number) {
+            if (currentOperand === '0' || currentOperand === 'Error') {
+                currentOperand = number;
+            } else {
+                currentOperand += number;
+            }
+            updateDisplay();
+        }
+        
+        // Handle aksi tombol
+        function handleAction(action) {
+            switch(action) {
+                case 'clear':
+                    clear();
+                    break;
+                case 'backspace':
+                    backspace();
+                    break;
+                case 'decimal':
+                    addDecimal();
+                    break;
+                case 'percentage':
+                    percentage();
+                    break;
+                case 'equals':
+                    calculate();
+                    break;
+                case 'add':
+                case 'subtract':
+                case 'multiply':
+                case 'divide':
+                    chooseOperation(action);
+                    break;
+                case 'square':
+                    square();
+                    break;
+                case 'sqrt':
+                    squareRoot();
+                    break;
+                case 'sin':
+                    sin();
+                    break;
+                case 'cos':
+                    cos();
+                    break;
+                case 'tan':
+                    tan();
+                    break;
+                case 'pi':
+                    addPi();
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        // Hapus semua
+        function clear() {
+            currentOperand = '0';
+            previousOperand = '';
+            operation = null;
+            updateDisplay();
+        }
+        
+        // Hapus satu karakter
+        function backspace() {
+            if (currentOperand.length > 1) {
+                currentOperand = currentOperand.slice(0, -1);
+            } else {
+                currentOperand = '0';
+            }
+            updateDisplay();
+        }
+        
+        // Tambah titik desimal
+        function addDecimal() {
+            if (!currentOperand.includes('.')) {
+                currentOperand += '.';
+            }
+            updateDisplay();
+        }
+        
+        // Persentase
+        function percentage() {
+            currentOperand = (parseFloat(currentOperand) / 100).toString();
+            updateDisplay();
+        }
+        
+        // Pilih operasi
+        function chooseOperation(op) {
+            if (currentOperand === 'Error') return;
+            
+            if (previousOperand !== '') {
+                calculate();
+            }
+            
+            operation = op;
+            previousOperand = currentOperand;
+            currentOperand = '0';
+            updateDisplay();
+        }
+        
+        // Hitung hasil
+        function calculate() {
+            let computation;
+            const prev = parseFloat(previousOperand);
+            const current = parseFloat(currentOperand);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+            
+            try {
+                switch(operation) {
+                    case 'add':
+                        computation = prev + current;
+                        break;
+                    case 'subtract':
+                        computation = prev - current;
+                        break;
+                    case 'multiply':
+                        computation = prev * current;
+                        break;
+                    case 'divide':
+                        if (current === 0) {
+                            throw new Error('Pembagian dengan nol');
+                        }
+                        computation = prev / current;
+                        break;
+                    default:
+                        return;
+                }
+                
+                // Simpan riwayat
+                saveToHistory(prev, current, operation, computation);
+                
+                currentOperand = Number.isInteger(computation) ? computation.toString() : parseFloat(computation.toFixed(10)).toString();
+                operation = null;
+                previousOperand = '';
+                updateDisplay();
+            } catch (error) {
+                currentOperand = 'Error';
+                operation = null;
+                previousOperand = '';
+                updateDisplay();
+            }
+        }
+        
+        // Fungsi kalkulator ilmiah
+        function square() {
+            const num = parseFloat(currentOperand);
+            if (!isNaN(num)) {
+                saveToHistory(num, null, 'square', num * num);
+                currentOperand = (num * num).toString();
+                updateDisplay();
+            }
+        }
+        
+        function squareRoot() {
+            const num = parseFloat(currentOperand);
+            if (!isNaN(num) && num >= 0) {
+                saveToHistory(num, null, 'sqrt', Math.sqrt(num));
+                currentOperand = Math.sqrt(num).toString();
+                updateDisplay();
+            } else {
+                currentOperand = 'Error';
+                updateDisplay();
+            }
+        }
+        
+        function sin() {
+            const num = parseFloat(currentOperand);
+            if (!isNaN(num)) {
+                saveToHistory(num, null, 'sin', Math.sin(num * Math.PI / 180));
+                currentOperand = Math.sin(num * Math.PI / 180).toString();
+                updateDisplay();
+            }
+        }
+        
+        function cos() {
+            const num = parseFloat(currentOperand);
+            if (!isNaN(num)) {
+                saveToHistory(num, null, 'cos', Math.cos(num * Math.PI / 180));
+                currentOperand = Math.cos(num * Math.PI / 180).toString();
+                updateDisplay();
+            }
+        }
+        
+        function tan() {
+            const num = parseFloat(currentOperand);
+            if (!isNaN(num)) {
+                saveToHistory(num, null, 'tan', Math.tan(num * Math.PI / 180));
+                currentOperand = Math.tan(num * Math.PI / 180).toString();
+                updateDisplay();
+            }
+        }
+        
+        function addPi() {
+            currentOperand = Math.PI.toString();
+            updateDisplay();
+        }
+        
+        // Update display
+        function updateDisplay() {
+            resultElement.textContent = currentOperand;
+            
+            let operationSymbol = '';
+            switch(operation) {
+                case 'add': operationSymbol = '+'; break;
+                case 'subtract': operationSymbol = '−'; break;
+                case 'multiply': operationSymbol = '×'; break;
+                case 'divide': operationSymbol = '÷'; break;
+            }
+            
+            if (operation !== null) {
+                calculationElement.textContent = `${previousOperand} ${operationSymbol}`;
+            } else {
+                calculationElement.textContent = '';
+            }
+        }
+        
+        // Simpan ke riwayat
+        function saveToHistory(a, b, op, result) {
+            let operationText = '';
+            
+            switch(op) {
+                case 'add': operationText = `${a} + ${b} =`; break;
+                case 'subtract': operationText = `${a} − ${b} =`; break;
+                case 'multiply': operationText = `${a} × ${b} =`; break;
+                case 'divide': operationText = `${a} ÷ ${b} =`; break;
+                case 'square': operationText = `${a}² =`; break;
+                case 'sqrt': operationText = `√${a} =`; break;
+                case 'sin': operationText = `sin(${a}°) =`; break;
+                case 'cos': operationText = `cos(${a}°) =`; break;
+                case 'tan': operationText = `tan(${a}°) =`; break;
+            }
+            
+            const historyItem = {
+                calculation: operationText,
+                result: result.toString(),
+                timestamp: new Date().toLocaleString('id-ID')
+            };
+            
+            calculationHistory.unshift(historyItem);
+            
+            // Simpan ke localStorage
+            localStorage.setItem('calculatorHistory', JSON.stringify(calculationHistory));
+            
+            // Batasi riwayat hingga 50 item
+            if (calculationHistory.length > 50) {
+                calculationHistory.pop();
+            }
+        }
+        
+        // Muat riwayat dari localStorage
+        function loadHistory() {
+            const savedHistory = localStorage.getItem('calculatorHistory');
+            if (savedHistory) {
+                calculationHistory = JSON.parse(savedHistory);
+            }
+        }
+        
+        // Update tampilan riwayat
+        function updateHistoryDisplay() {
+            if (calculationHistory.length === 0) {
+                historyList.innerHTML = '<div class="empty-history">Belum ada riwayat perhitungan</div>';
+                return;
+            }
+            
+            let historyHTML = '';
+            calculationHistory.forEach(item => {
+                historyHTML += `
+                    <div class="history-item">
+                        <div class="history-calculation">${item.calculation}</div>
+                        <div class="history-result">${item.result}</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 5px;">${item.timestamp}</div>
+                    </div>
+                `;
+            });
+            
+            historyList.innerHTML = historyHTML;
+        }
+        
+        // Hapus riwayat
+        function clearHistory() {
+            calculationHistory = [];
+            localStorage.removeItem('calculatorHistory');
+            updateHistoryDisplay();
+        }
+        
+        // Handle input keyboard
+        function handleKeyboardInput(e) {
+            if (e.key >= '0' && e.key <= '9') {
+                appendNumber(e.key);
+            } else if (e.key === '.') {
+                addDecimal();
+            } else if (e.key === '+') {
+                chooseOperation('add');
+            } else if (e.key === '-') {
+                chooseOperation('subtract');
+            } else if (e.key === '*') {
+                chooseOperation('multiply');
+            } else if (e.key === '/') {
+                e.preventDefault();
+                chooseOperation('divide');
+            } else if (e.key === 'Enter' || e.key === '=') {
+                calculate();
+            } else if (e.key === 'Escape' || e.key === 'Delete') {
+                clear();
+            } else if (e.key === 'Backspace') {
+                backspace();
+            } else if (e.key === '%') {
+                percentage();
+            }
+        }
+        
+        // Inisialisasi kalkulator saat halaman dimuat
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
